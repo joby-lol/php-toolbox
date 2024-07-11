@@ -1,0 +1,22 @@
+{
+    "name": "joby/toolbox",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Joby\\Toolbox\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Joby Elliot",
+            "email": "code@byjoby.com"
+        }
+    ],
+    "require": {
+        "php": "~8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.2"
+    }
+}
