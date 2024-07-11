@@ -61,7 +61,7 @@ class Sort
      * Sort::sort($data, fn ($a, $b) => $a % 2 <=> $b % 2, fn ($a, $b) => $a <=> $b);
      * ```
      * 
-     * @param array &$data The array to sort, passed by reference.
+     * @param array<mixed> &$data The array to sort, passed by reference.
      * @param callable(mixed, mixed): int ...$comparisons An array of comparison callbacks that will be used to sort the array.
      */
     public static function sort(array &$data, callable ...$comparisons): void
@@ -108,7 +108,9 @@ class Sort
     public static function compareMethods(string $method_name, mixed ...$args): callable
     {
         return function (object $a, object $b) use ($method_name, $args): int {
-            return call_user_func_array([$a, $method_name], $args) <=> call_user_func_array([$b, $method_name], $args);
+            assert(method_exists($a, $method_name), sprintf('Method %s does not exist on object %s', $method_name, get_class($a)));
+            assert(method_exists($b, $method_name), sprintf('Method %s does not exist on object %s', $method_name, get_class($b)));
+            return $a->$method_name(...$args) <=> $b->$method_name(...$args);
         };
     }
 
@@ -147,9 +149,8 @@ class Sort
      * ];
      * Sort::sort($data, Sort::compareArrayValues('name'));
      * ```
-     * 
      * @param string $key The key to compare in the arrays.
-     * @return callable(array, array): int A comparison callback that will compare the values of the key in two arrays.
+     * @return callable(array<mixed>, array<mixed>): int A comparison callback that will compare the values of the key in two arrays.
      */
     public static function compareArrayValues(string $key): callable
     {
