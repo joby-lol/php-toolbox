@@ -43,6 +43,8 @@ class Sorter
      * Create a new Sorter object with the given list of sorting callbacks.
      * The sorters will be called in order, and the array will be sorted based
      * on the first one to return a non-zero value.
+     * 
+     * @param callable(mixed, mixed): int ...$comparisons
      */
     public function __construct(callable ...$comparisons)
     {
@@ -52,6 +54,8 @@ class Sorter
     /**
      * Add one or more sorting callbacks to this sorter. The new callbacks will
      * be appended to the end of the existing list of sorters.
+     * 
+     * @param callable(mixed, mixed): int ...$comparisons
      */
     public function addComparison(callable ...$comparisons): static
     {

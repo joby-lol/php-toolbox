@@ -60,6 +60,9 @@ class Sort
      * $data = [3, 1, 4, 1, 5, 9];
      * Sort::sort($data, fn ($a, $b) => $a % 2 <=> $b % 2, fn ($a, $b) => $a <=> $b);
      * ```
+     * 
+     * @param array &$data The array to sort, passed by reference.
+     * @param callable(mixed, mixed): int ...$comparisons An array of comparison callbacks that will be used to sort the array.
      */
     public static function sort(array &$data, callable ...$comparisons): void
     {
@@ -75,6 +78,9 @@ class Sort
      * $data = [3, 1, 4, 1, 5, 9];
      * Sort::sort($data, Sort::reverse(fn ($a, $b) => $a <=> $b));
      * ```
+     * 
+     * @param callable(mixed, mixed): int $comparison The original comparison callback.
+     * @return callable(mixed, mixed): int A new comparison callback that will reverse the order of the original callback.
      */
     public static function reverse(callable $comparison): callable
     {
@@ -94,6 +100,10 @@ class Sort
      * $data = [...]; // array of objects with getNumber() method
      * Sort::sort($data, Sort::compareMethods('getNumber'));
      * ```
+     * 
+     * @param string $method_name The name of the method to call on the objects.
+     * @param mixed ...$args Optional arguments to pass to the method.
+     * @return callable(object, object): int A comparison callback that will compare the results of calling the method on two objects.
      */
     public static function compareMethods(string $method_name, mixed ...$args): callable
     {
@@ -112,6 +122,9 @@ class Sort
      * $data = [...]; // array of objects with itemName property
      * Sort::sort($data, Sort::compareProperties('itemName'));
      * ```
+     * 
+     * @param string $property_name The name of the property to compare.
+     * @return callable(object, object): int A comparison callback that will compare the values of the property on two objects.
      */
     public static function compareProperties(string $property_name): callable
     {
@@ -134,6 +147,9 @@ class Sort
      * ];
      * Sort::sort($data, Sort::compareArrayValues('name'));
      * ```
+     * 
+     * @param string $key The key to compare in the arrays.
+     * @return callable(array, array): int A comparison callback that will compare the values of the key in two arrays.
      */
     public static function compareArrayValues(string $key): callable
     {
@@ -152,6 +168,8 @@ class Sort
      * $data = ['apple', 'banana', 'cherry', 'date', 'elderberry'];
      * Sort::sort($data, Sort::compareCallbackResults(strlen(...)));
      * ```
+     * 
+     * @param callable(mixed): mixed $callback The callback to run on items to compare. Its output will be sorted normally using <=>.
      */
     public static function compareCallbackResults(callable $callback): callable
     {
