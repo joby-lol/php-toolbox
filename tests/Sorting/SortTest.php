@@ -1,10 +1,8 @@
 <?php
 
 /**
- * MIT License
- *
  * Joby's PHP Toolbox: https://code.byjoby.com/php-toolbox/
- * Copyright (c) 2024 Joby Elliott
+ * MIT License: Copyright (c) 2024 Joby Elliott
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
