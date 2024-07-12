@@ -16,3 +16,4 @@ jobs:
       - uses: php-actions/phpunit@v3
         with:
           test_suffix: "Test.php"
+          php_version: ${{ matrix.php-versions }}
