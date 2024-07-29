@@ -30,14 +30,22 @@ namespace Joby\Toolbox\Ranges;
  * its values as well as it's internal hashes. All it does to convert values is
  * cast them to integers.
  * 
+ * This class is also effectively the test harness for AbstractRange. So it has
+ * extremely comprehensive tests while other implementations might only test
+ * for basic functionality and common off-by-one error locations.
+ * 
  * @extends AbstractRange<int>
  */
 class IntegerRange extends AbstractRange
 {
-
-    protected static function convertToInt(mixed $value): int
+    protected static function valueToInteger(mixed $value): int
     {
         return (int)$value;
+    }
+
+    protected static function integerToValue(int $integer): mixed
+    {
+        return $integer;
     }
 
     protected static function prepareValue(mixed $value): mixed

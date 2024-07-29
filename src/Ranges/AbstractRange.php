@@ -25,6 +25,8 @@
 
 namespace Joby\Toolbox\Ranges;
 
+use RuntimeException;
+
 /**
  * Class to represent a range of values, which consists of a start and an end
  * value, each of which may be null to indicate an open range in that direction.
@@ -51,10 +53,18 @@ abstract class AbstractRange
     /**
      * This must be essentially a hash function, which converts a given value
      * into an integer, which represents its ordering somehow.
-     * @param T|null $value 
+     * @param T $value 
      * @return int 
      */
-    abstract protected static function convertToInt(mixed $value): int;
+    abstract protected static function valueToInteger(mixed $value): int;
+
+    /**
+     * This must be the inverse of the valueToInteger method, which converts an
+     * integer back into the original value.
+     * @param int $integer
+     * @return T
+     */
+    abstract protected static function integerToValue(int $integer): mixed;
 
     /**
      * This must prepare a value to be stored in this object, which may just be
@@ -63,6 +73,30 @@ abstract class AbstractRange
      * @return T
      */
     abstract protected static function prepareValue(mixed $value): mixed;
+
+    /**
+     * This must return the value that is immediately before a given integer.
+     * Returns null if number is infinite.
+     * @return T|null
+     */
+    protected static function valueBefore(int|float $number): mixed
+    {
+        if ($number == INF) return null;
+        if ($number == -INF) return null;
+        return static::integerToValue((int)$number - 1);
+    }
+
+    /**
+     * This must return the value that is immediately after a given integer.
+     * Returns null if number is infinite.
+     * @return T|null
+     */
+    protected static function valueAfter(int|float $number): mixed
+    {
+        if ($number == INF) return null;
+        if ($number == -INF) return null;
+        return static::integerToValue((int)$number + 1);
+    }
 
     /**
      * @param T|null $start
@@ -89,6 +123,75 @@ abstract class AbstractRange
                 $this->extendsAfter($other) ? $other->end() : $this->end()
             );
         } else return null;
+    }
+
+    /**
+     * Perform a boolean OR operation on this range and another, returning an
+     * array of all areas that are covered by either range (if the ranges do not
+     * overlap this array will contain both ranges separately). Separate objects
+     * must be returned in ascending order.
+     * @param static $other
+     * @return static[]
+     */
+    public function booleanOr(AbstractRange $other): array
+    {
+        if ($this->intersects($other) || $this->adjacent($other)) {
+            return [
+                new static(
+                    $this->extendsBefore($other) ? $this->start() : $other->start(),
+                    $this->extendsAfter($other) ? $this->end() : $other->end()
+                )
+            ];
+        } else {
+            if ($this->extendsBefore($other)) {
+                return [new static($this->start(), $this->end()), new static($other->start(), $other->end())];
+            } else {
+                return [new static($other->start(), $other->end()), new static($this->start(), $this->end())];
+            }
+        }
+    }
+
+    /**
+     * Perform a boolean NOT operation on this range and another, returning an
+     * array of all areas that are covered by this range but not the other. If
+     * the other range completely covers this range, an empty array will be
+     * returned. Separate objects must be returned in ascending order.
+     * @param static $other
+     * @return static[]
+     */
+    public function booleanNot(AbstractRange $other): array
+    {
+        // if this range is completely contained by the other, return an empty array
+        if ($other->contains($this)) {
+            return [];
+        }
+        // if the ranges do not overlap, return this range
+        if (!$this->intersects($other)) {
+            return [new static($this->start(), $this->end())];
+        }
+        // if this range completely contains the other, return the range from the start of this range to the start of the other
+        if ($this->contains($other)) {
+            if ($this->start == $other->start) {
+                return [new static(static::valueAfter($other->end), $this->end())];
+            } elseif ($this->end == $other->end) {
+                return [new static($this->start(), static::valueBefore($other->start))];
+            } else {
+                return [
+                    new static($this->start(), static::valueBefore($other->start)),
+                    new static(static::valueAfter($other->end), $this->end())
+                ];
+            }
+        }
+        // if this range extends before the other, return the range from the start of this range to the start of the other
+        if ($this->extendsBefore($other)) {
+            return [new static($this->start(), static::valueBefore($other->start))];
+        }
+        // if this range extends after the other, return the range from the end of the other to the end of this range
+        if ($this->extendsAfter($other)) {
+            return [new static(static::valueAfter($other->end), $this->end())];
+        }
+        // throw an exception if we get in an unexpected state
+        throw new RuntimeException(sprintf("Unexpected state (%s,%s) (%s,%s)", $this->start, $this->end, $other->start, $other->end));
     }
 
     /**
@@ -145,9 +248,9 @@ abstract class AbstractRange
      * is equivalent to checking both abutsStartOf and abutsEndOf.
      * @param static $other
      */
-    public function abuts(AbstractRange $other): bool
+    public function adjacent(AbstractRange $other): bool
     {
-        return $this->abutsEndOf($other) || $this->abutsStartOf($other);
+        return $this->adjacentRightOf($other) || $this->adjacentLeftOf($other);
     }
 
     /**
@@ -155,7 +258,7 @@ abstract class AbstractRange
      * This means that they do not overlap, but are directly adjacent.
      * @param static $other
      */
-    public function abutsEndOf(AbstractRange $other): bool
+    public function adjacentRightOf(AbstractRange $other): bool
     {
         if ($this->start == -INF || $other->end == INF) return false;
         return $this->start == $other->end + 1;
@@ -166,7 +269,7 @@ abstract class AbstractRange
      * This means that they do not overlap, but are directly adjacent.
      * @param static $other
      */
-    public function abutsStartOf(AbstractRange $other): bool
+    public function adjacentLeftOf(AbstractRange $other): bool
     {
         if ($this->end == INF || $other->start == -INF) return false;
         return $this->end == $other->start - 1;
@@ -179,7 +282,7 @@ abstract class AbstractRange
     public function setStart(mixed $start): static
     {
         $this->start = is_null($start) ? -INF
-            : static::convertToInt($start);
+            : static::valueToInteger($start);
         $this->start_value = is_null($start) ? null
             : static::prepareValue($start);
         return $this;
@@ -192,7 +295,7 @@ abstract class AbstractRange
     public function setEnd(mixed $end): static
     {
         $this->end = is_null($end) ? INF
-            : static::convertToInt($end);
+            : static::valueToInteger($end);
         $this->end_value = is_null($end) ? null
             : static::prepareValue($end);
         return $this;

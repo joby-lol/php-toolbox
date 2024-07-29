@@ -355,7 +355,7 @@ class IntegerRangeTest extends TestCase
         );
     }
 
-    public function testAbutsEndOf()
+    public function testAdjacentRightOf()
     {
         // fully bounded only abuts the end of things that are adjacent left
         $this->assertEquals(
@@ -389,7 +389,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(10, 20),
-                'abutsEndOf',
+                'adjacentRightOf',
             )
         );
         // open start can't abut the end of anything
@@ -413,7 +413,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(null, 20),
-                'abutsEndOf',
+                'adjacentRightOf',
             )
         );
         // open end only abuts the end of things that are adjacent left
@@ -437,7 +437,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(10, null),
-                'abutsEndOf',
+                'adjacentRightOf',
             )
         );
         // fully unbounded can't abut anything
@@ -450,12 +450,12 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(null, null),
-                'abutsEndOf',
+                'adjacentRightOf',
             )
         );
     }
 
-    public function testAbutsStartOf()
+    public function testAdjacentLeftOf()
     {
         // fully bounded only abuts the start of things that are adjacent right
         $this->assertEquals(
@@ -489,7 +489,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(10, 20),
-                'abutsStartOf',
+                'adjacentLeftOf',
             )
         );
         // open start only abuts the start of things that are adjacent right
@@ -513,7 +513,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(null, 20),
-                'abutsStartOf',
+                'adjacentLeftOf',
             )
         );
         // open end can't abut the start of anything
@@ -537,7 +537,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(10, null),
-                'abutsStartOf',
+                'adjacentLeftOf',
             )
         );
         // fully unbounded can't abut anything
@@ -550,12 +550,12 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(null, null),
-                'abutsStartOf',
+                'adjacentLeftOf',
             )
         );
     }
 
-    public function testAbuts()
+    public function testAdjacent()
     {
         // fully bounded only abuts things that are adjacent
         $this->assertEquals(
@@ -589,7 +589,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(10, 20),
-                'abuts',
+                'adjacent',
             )
         );
         // open start abuts adjacent right
@@ -613,7 +613,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(null, 20),
-                'abuts',
+                'adjacent',
             )
         );
         // open end abuts adjacent left
@@ -637,7 +637,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(10, null),
-                'abuts',
+                'adjacent',
             )
         );
         // fully unbounded can't abut anything
@@ -650,7 +650,7 @@ class IntegerRangeTest extends TestCase
             ],
             $this->scenarioResults(
                 new IntegerRange(null, null),
-                'abuts',
+                'adjacent',
             )
         );
     }
@@ -663,9 +663,9 @@ class IntegerRangeTest extends TestCase
                 'same' => '10,20',
                 'unbounded' => '10,20',
                 'intersecting open end left' => '10,20',
-                'intersecting open end right' => '12,20',
+                'intersecting open end right' => '11,20',
                 'intersecting open end center' => '10,20',
-                'intersecting open start left' => '10,18',
+                'intersecting open start left' => '10,19',
                 'intersecting open start right' => '10,20',
                 'intersecting open start center' => '10,20',
                 'disjoint open start' => null,
@@ -697,15 +697,15 @@ class IntegerRangeTest extends TestCase
             [
                 'same' => 'null,20',
                 'unbounded' => 'null,20',
-                'intersecting open start left' => 'null,18',
+                'intersecting open start left' => 'null,19',
                 'intersecting open start right' => 'null,20',
-                'intersecting bounded start left' => '8,18',
-                'intersecting bounded start right' => '12,20',
+                'intersecting bounded start left' => '9,19',
+                'intersecting bounded start right' => '11,20',
                 'intersecting bounded start center' => '10,20',
                 'intersecting open end same' => '20,20',
-                'intersecting open end left' => '18,20',
+                'intersecting open end left' => '19,20',
                 'intersecting bounded end same' => '20,20',
-                'intersecting bounded end left' => '18,20',
+                'intersecting bounded end left' => '19,20',
                 'adjacent open end' => null,
                 'adjacent bounded end' => null,
                 'disjoint open end' => null,
@@ -722,14 +722,14 @@ class IntegerRangeTest extends TestCase
                 'same' => '10,null',
                 'unbounded' => '10,null',
                 'intersecting open end left' => '10,null',
-                'intersecting open end right' => '12,null',
-                'intersecting bounded end left' => '10,18',
-                'intersecting bounded end right' => '12,22',
+                'intersecting open end right' => '11,null',
+                'intersecting bounded end left' => '10,19',
+                'intersecting bounded end right' => '11,21',
                 'intersecting bounded end center' => '10,20',
                 'intersecting open start same' => '10,10',
-                'intersecting open start right' => '10,12',
+                'intersecting open start right' => '10,11',
                 'intersecting bounded start same' => '10,10',
-                'intersecting bounded start right' => '10,12',
+                'intersecting bounded start right' => '10,11',
                 'adjacent open start' => null,
                 'adjacent bounded start' => null,
                 'disjoint open start' => null,
@@ -755,6 +755,206 @@ class IntegerRangeTest extends TestCase
         );
     }
 
+    public function testBooleanOr()
+    {
+        // fully bounded
+        $this->assertEquals(
+            [
+                'same' => '10,20',
+                'unbounded' => 'null,null',
+                'intersecting open end left' => '9,null',
+                'intersecting open end right' => '10,null',
+                'intersecting open end center' => '10,null',
+                'intersecting open start left' => 'null,20',
+                'intersecting open start right' => 'null,21',
+                'intersecting open start center' => 'null,20',
+                'disjoint open start' => 'null,8;10,20',
+                'disjoint open end' => '10,20;22,null',
+                'disjoint left' => '-2,8;10,20',
+                'disjoint right' => '10,20;22,32',
+                'adjacent open start' => 'null,20',
+                'adjacent open end' => '10,null',
+                'adjacent left' => '-1,20',
+                'adjacent right' => '10,31',
+                'contained' => '10,20',
+                'contained same start' => '10,20',
+                'contained same end' => '10,20',
+                'containing' => '9,21',
+                'containing unbounded start' => 'null,21',
+                'containing unbounded end' => '9,null',
+                'containing same start' => '10,21',
+                'containing same end' => '9,20',
+                'containing same start unbounded end' => '10,null',
+                'containing same end unbounded start' => 'null,20',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, 20),
+                'booleanOr',
+            )
+        );
+        // open start
+        $this->assertEquals(
+            [
+                'same' => 'null,20',
+                'unbounded' => 'null,null',
+                'intersecting open start left' => 'null,20',
+                'intersecting open start right' => 'null,21',
+                'intersecting bounded start left' => 'null,20',
+                'intersecting bounded start right' => 'null,21',
+                'intersecting bounded start center' => 'null,20',
+                'intersecting open end same' => 'null,null',
+                'intersecting open end left' => 'null,null',
+                'intersecting bounded end same' => 'null,30',
+                'intersecting bounded end left' => 'null,29',
+                'adjacent open end' => 'null,null',
+                'adjacent bounded end' => 'null,30',
+                'disjoint open end' => 'null,20;22,null',
+                'disjoint bounded end' => 'null,20;22,32',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, 20),
+                'booleanOr',
+            )
+        );
+        // open end
+        $this->assertEquals(
+            [
+                'same' => '10,null',
+                'unbounded' => 'null,null',
+                'intersecting open end left' => '9,null',
+                'intersecting open end right' => '10,null',
+                'intersecting bounded end left' => '9,null',
+                'intersecting bounded end right' => '10,null',
+                'intersecting bounded end center' => '10,null',
+                'intersecting open start same' => 'null,null',
+                'intersecting open start right' => 'null,null',
+                'intersecting bounded start same' => '0,null',
+                'intersecting bounded start right' => '1,null',
+                'adjacent open start' => 'null,null',
+                'adjacent bounded start' => '0,null',
+                'disjoint open start' => 'null,8;10,null',
+                'disjoint bounded start' => '-2,8;10,null',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, null),
+                'booleanOr',
+            )
+        );
+        // fully unbounded
+        $this->assertEquals(
+            [
+                'same' => 'null,null',
+                'open start' => 'null,null',
+                'open end' => 'null,null',
+                'bounded' => 'null,null',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, null),
+                'booleanOr',
+            )
+        );
+    }
+
+    public function testBooleanNot()
+    {
+        // fully bounded
+        $this->assertEquals(
+            [
+                'same' => '',
+                'unbounded' => '',
+                'intersecting open end left' => '',
+                'intersecting open end right' => '10,10',
+                'intersecting open end center' => '',
+                'intersecting open start left' => '20,20',
+                'intersecting open start right' => '',
+                'intersecting open start center' => '',
+                'disjoint open start' => '10,20',
+                'disjoint open end' => '10,20',
+                'disjoint left' => '10,20',
+                'disjoint right' => '10,20',
+                'adjacent open start' => '10,20',
+                'adjacent open end' => '10,20',
+                'adjacent left' => '10,20',
+                'adjacent right' => '10,20',
+                'contained' => '10,10;20,20',
+                'contained same start' => '20,20',
+                'contained same end' => '10,10',
+                'containing' => '',
+                'containing unbounded start' => '',
+                'containing unbounded end' => '',
+                'containing same start' => '',
+                'containing same end' => '',
+                'containing same start unbounded end' => '',
+                'containing same end unbounded start' => '',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, 20),
+                'booleanNot',
+            )
+        );
+        // open start
+        $this->assertEquals(
+            [
+                'same' => '',
+                'unbounded' => '',
+                'intersecting open start left' => '20,20',
+                'intersecting open start right' => '',
+                'intersecting bounded start left' => 'null,8;20,20',
+                'intersecting bounded start right' => 'null,10',
+                'intersecting bounded start center' => 'null,9',
+                'intersecting open end same' => 'null,19',
+                'intersecting open end left' => 'null,18',
+                'intersecting bounded end same' => 'null,19',
+                'intersecting bounded end left' => 'null,18',
+                'adjacent open end' => 'null,20',
+                'adjacent bounded end' => 'null,20',
+                'disjoint open end' => 'null,20',
+                'disjoint bounded end' => 'null,20',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, 20),
+                'booleanNot',
+            )
+        );
+        // open end
+        $this->assertEquals(
+            [
+                'same' => '',
+                'unbounded' => '',
+                'intersecting open end left' => '',
+                'intersecting open end right' => '10,10',
+                'intersecting bounded end left' => '20,null',
+                'intersecting bounded end right' => '10,10;22,null',
+                'intersecting bounded end center' => '21,null',
+                'intersecting open start same' => '11,null',
+                'intersecting open start right' => '12,null',
+                'intersecting bounded start same' => '11,null',
+                'intersecting bounded start right' => '12,null',
+                'adjacent open start' => '10,null',
+                'adjacent bounded start' => '10,null',
+                'disjoint open start' => '10,null',
+                'disjoint bounded start' => '10,null',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, null),
+                'booleanNot',
+            )
+        );
+        // fully unbounded
+        $this->assertEquals(
+            [
+                'same' => '',
+                'open start' => '21,null',
+                'open end' => 'null,9',
+                'bounded' => 'null,9;21,null',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, null),
+                'booleanNot',
+            )
+        );
+    }
+
     protected function createScenarios(IntegerRange $range): array
     {
         if (is_null($range->start()) && is_null($range->end())) {
@@ -770,15 +970,15 @@ class IntegerRangeTest extends TestCase
             return [
                 'same' => new IntegerRange(null, $range->end()),
                 'unbounded' => new IntegerRange(null, null),
-                'intersecting open start left' => new IntegerRange(null, $range->end() - 2),
-                'intersecting open start right' => new IntegerRange(null, $range->end() + 2),
-                'intersecting bounded start left' => new IntegerRange($range->end() - 12, $range->end() - 2),
-                'intersecting bounded start right' => new IntegerRange($range->end() - 8, $range->end() + 2),
+                'intersecting open start left' => new IntegerRange(null, $range->end() - 1),
+                'intersecting open start right' => new IntegerRange(null, $range->end() + 1),
+                'intersecting bounded start left' => new IntegerRange($range->end() - 11, $range->end() - 1),
+                'intersecting bounded start right' => new IntegerRange($range->end() - 9, $range->end() + 1),
                 'intersecting bounded start center' => new IntegerRange($range->end() - 10, $range->end()),
                 'intersecting open end same' => new IntegerRange($range->end(), null),
-                'intersecting open end left' => new IntegerRange($range->end() - 2, null),
+                'intersecting open end left' => new IntegerRange($range->end() - 1, null),
                 'intersecting bounded end same' => new IntegerRange($range->end(), $range->end() + 10),
-                'intersecting bounded end left' => new IntegerRange($range->end() - 2, $range->end() + 10),
+                'intersecting bounded end left' => new IntegerRange($range->end() - 1, $range->end() + 9),
                 'adjacent open end' => new IntegerRange($range->end() + 1, null),
                 'adjacent bounded end' => new IntegerRange($range->end() + 1, $range->end() + 10),
                 'disjoint open end' => new IntegerRange($range->end() + 2, null),
@@ -789,15 +989,15 @@ class IntegerRangeTest extends TestCase
             return [
                 'same' => new IntegerRange($range->start(), null),
                 'unbounded' => new IntegerRange(null, null),
-                'intersecting open end left' => new IntegerRange($range->start() - 2, null),
-                'intersecting open end right' => new IntegerRange($range->start() + 2, null),
-                'intersecting bounded end left' => new IntegerRange($range->start() - 2, $range->start() + 8),
-                'intersecting bounded end right' => new IntegerRange($range->start() + 2, $range->start() + 12),
+                'intersecting open end left' => new IntegerRange($range->start() - 1, null),
+                'intersecting open end right' => new IntegerRange($range->start() + 1, null),
+                'intersecting bounded end left' => new IntegerRange($range->start() - 1, $range->start() + 9),
+                'intersecting bounded end right' => new IntegerRange($range->start() + 1, $range->start() + 11),
                 'intersecting bounded end center' => new IntegerRange($range->start(), $range->start() + 10),
                 'intersecting open start same' => new IntegerRange(null, $range->start()),
-                'intersecting open start right' => new IntegerRange(null, $range->start() + 2),
+                'intersecting open start right' => new IntegerRange(null, $range->start() + 1),
                 'intersecting bounded start same' => new IntegerRange($range->start() - 10, $range->start()),
-                'intersecting bounded start right' => new IntegerRange($range->start() - 12, $range->start() + 2),
+                'intersecting bounded start right' => new IntegerRange($range->start() - 9, $range->start() + 1),
                 'adjacent open start' => new IntegerRange(null, $range->start() - 1),
                 'adjacent bounded start' => new IntegerRange($range->start() - 10, $range->start() - 1),
                 'disjoint open start' => new IntegerRange(null, $range->start() - 2),
@@ -808,11 +1008,11 @@ class IntegerRangeTest extends TestCase
             return [
                 'same' => new IntegerRange($range->start(), $range->end()),
                 'unbounded' => new IntegerRange(null, null),
-                'intersecting open end left' => new IntegerRange($range->start() - 2, null),
-                'intersecting open end right' => new IntegerRange($range->start() + 2, null),
+                'intersecting open end left' => new IntegerRange($range->start() - 1, null),
+                'intersecting open end right' => new IntegerRange($range->start() + 1, null),
                 'intersecting open end center' => new IntegerRange($range->start(), null),
-                'intersecting open start left' => new IntegerRange(null, $range->end() - 2),
-                'intersecting open start right' => new IntegerRange(null, $range->end() + 2),
+                'intersecting open start left' => new IntegerRange(null, $range->end() - 1),
+                'intersecting open start right' => new IntegerRange(null, $range->end() + 1),
                 'intersecting open start center' => new IntegerRange(null, $range->end()),
                 'disjoint open start' => new IntegerRange(null, $range->start() - 2),
                 'disjoint open end' => new IntegerRange($range->end() + 2, null),
@@ -843,6 +1043,14 @@ class IntegerRangeTest extends TestCase
                 $result = $range->$method($s);
                 if ($result instanceof IntegerRange) {
                     $result = ($result->start() ?? 'null') . ',' . ($result->end() ?? 'null');
+                }
+                if (is_array($result)) {
+                    $result = implode(';', array_map(
+                        function ($r) {
+                            return ($r->start() ?? 'null') . ',' . ($r->end() ?? 'null');
+                        },
+                        $result
+                    ));
                 }
                 return $result;
             },
