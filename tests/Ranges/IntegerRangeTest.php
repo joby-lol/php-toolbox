@@ -59,9 +59,7 @@ class IntegerRangeTest extends TestCase
     public function testEquals()
     {
         // fully bounded
-        $this->checkScenarioResults(
-            new IntegerRange(10, 20),
-            'equals',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => false,
@@ -89,12 +87,14 @@ class IntegerRangeTest extends TestCase
                 'containing same end' => false,
                 'containing same start unbounded end' => false,
                 'containing same end unbounded start' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, 20),
+                'equals',
+            )
         );
         // open start
-        $this->checkScenarioResults(
-            new IntegerRange(null, 20),
-            'equals',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => false,
@@ -111,12 +111,14 @@ class IntegerRangeTest extends TestCase
                 'adjacent bounded end' => false,
                 'disjoint open end' => false,
                 'disjoint bounded end' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, 20),
+                'equals',
+            )
         );
         // open end
-        $this->checkScenarioResults(
-            new IntegerRange(10, null),
-            'equals',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => false,
@@ -133,27 +135,31 @@ class IntegerRangeTest extends TestCase
                 'adjacent bounded start' => false,
                 'disjoint open start' => false,
                 'disjoint bounded start' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, null),
+                'equals',
+            )
         );
         // fully unbounded
-        $this->checkScenarioResults(
-            new IntegerRange(null, null),
-            'equals',
+        $this->assertEquals(
             [
                 'same' => true,
                 'open start' => false,
                 'open end' => false,
                 'bounded' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, null),
+                'equals',
+            )
         );
     }
 
     public function testIntersects()
     {
         // fully bounded
-        $this->checkScenarioResults(
-            new IntegerRange(10, 20),
-            'intersects',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => true,
@@ -181,12 +187,14 @@ class IntegerRangeTest extends TestCase
                 'containing same end' => true,
                 'containing same start unbounded end' => true,
                 'containing same end unbounded start' => true,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, 20),
+                'intersects',
+            )
         );
         // open start
-        $this->checkScenarioResults(
-            new IntegerRange(null, 20),
-            'intersects',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => true,
@@ -203,12 +211,14 @@ class IntegerRangeTest extends TestCase
                 'adjacent bounded end' => false,
                 'disjoint open end' => false,
                 'disjoint bounded end' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, 20),
+                'intersects',
+            )
         );
         // open end
-        $this->checkScenarioResults(
-            new IntegerRange(10, null),
-            'intersects',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => true,
@@ -225,27 +235,31 @@ class IntegerRangeTest extends TestCase
                 'adjacent bounded start' => false,
                 'disjoint open start' => false,
                 'disjoint bounded start' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, null),
+                'intersects',
+            )
         );
         // fully unbounded
-        $this->checkScenarioResults(
-            new IntegerRange(null, null),
-            'intersects',
+        $this->assertEquals(
             [
                 'same' => true,
                 'open start' => true,
                 'open end' => true,
                 'bounded' => true,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, null),
+                'intersects',
+            )
         );
     }
 
     public function testContains()
     {
         // fully bounded
-        $this->checkScenarioResults(
-            new IntegerRange(10, 20),
-            'contains',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => false,
@@ -273,12 +287,14 @@ class IntegerRangeTest extends TestCase
                 'containing same end' => false,
                 'containing same start unbounded end' => false,
                 'containing same end unbounded start' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, 20),
+                'contains',
+            )
         );
         // open start
-        $this->checkScenarioResults(
-            new IntegerRange(null, 20),
-            'contains',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => false,
@@ -295,12 +311,14 @@ class IntegerRangeTest extends TestCase
                 'adjacent bounded end' => false,
                 'disjoint open end' => false,
                 'disjoint bounded end' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, 20),
+                'contains',
+            )
         );
         // open end
-        $this->checkScenarioResults(
-            new IntegerRange(10, null),
-            'contains',
+        $this->assertEquals(
             [
                 'same' => true,
                 'unbounded' => false,
@@ -317,18 +335,24 @@ class IntegerRangeTest extends TestCase
                 'adjacent bounded start' => false,
                 'disjoint open start' => false,
                 'disjoint bounded start' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, null),
+                'contains',
+            )
         );
         // fully unbounded
-        $this->checkScenarioResults(
-            new IntegerRange(null, null),
-            'contains',
+        $this->assertEquals(
             [
                 'same' => true,
                 'open start' => true,
                 'open end' => true,
                 'bounded' => true,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, null),
+                'contains',
+            )
         );
     }
 
@@ -339,9 +363,7 @@ class IntegerRangeTest extends TestCase
     public function testAbutsStartOf()
     {
         // fully bounded
-        $this->checkScenarioResults(
-            new IntegerRange(10, 20),
-            'abutsStartOf',
+        $this->assertEquals(
             [
                 'same' => false,
                 'unbounded' => false,
@@ -369,12 +391,14 @@ class IntegerRangeTest extends TestCase
                 'containing same end' => false,
                 'containing same start unbounded end' => false,
                 'containing same end unbounded start' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, 20),
+                'abutsStartOf',
+            )
         );
         // open start
-        $this->checkScenarioResults(
-            new IntegerRange(null, 20),
-            'abutsStartOf',
+        $this->assertEquals(
             [
                 'same' => false,
                 'unbounded' => false,
@@ -391,12 +415,14 @@ class IntegerRangeTest extends TestCase
                 'adjacent bounded end' => true,
                 'disjoint open end' => false,
                 'disjoint bounded end' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, 20),
+                'abutsStartOf',
+            )
         );
         // open end
-        $this->checkScenarioResults(
-            new IntegerRange(10, null),
-            'abutsStartOf',
+        $this->assertEquals(
             [
                 'same' => false,
                 'unbounded' => false,
@@ -413,18 +439,24 @@ class IntegerRangeTest extends TestCase
                 'adjacent bounded start' => false,
                 'disjoint open start' => false,
                 'disjoint bounded start' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, null),
+                'abutsStartOf',
+            )
         );
         // fully unbounded
-        $this->checkScenarioResults(
-            new IntegerRange(null, null),
-            'abutsStartOf',
+        $this->assertEquals(
             [
                 'same' => false,
                 'open start' => false,
                 'open end' => false,
                 'bounded' => false,
-            ]
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, null),
+                'abutsStartOf',
+            )
         );
     }
 
@@ -509,30 +541,13 @@ class IntegerRangeTest extends TestCase
         }
     }
 
-    protected function checkScenarioResults(IntegerRange $range, string $method, array $expected_results)
+    protected function scenarioResults(IntegerRange $range, string $method): array
     {
-        $scenarios = $this->createScenarios($range);
-        foreach ($scenarios as $scenario => $other) {
-            $result = $range->$method($other);
-            if (!isset($expected_results[$scenario])) {
-                throw new Exception("No expected result for scenario '$scenario'");
-            }
-            $expected = $expected_results[$scenario];
-            unset($expected_results[$scenario]);
-            $this->assertEquals($expected, $result, sprintf(
-                "[%s,%s] %s [%s,%s] expected %s but returned %s (scenario %s)",
-                $range->start() ?? '-INF',
-                $range->end() ?? 'INF',
-                $method,
-                $other->start() ?? '-INF',
-                $other->end() ?? 'INF',
-                $expected ? 'true' : 'false',
-                $result ? 'true' : 'false',
-                $scenario
-            ));
-        }
-        if (count($expected_results) > 0) {
-            throw new Exception("Expected results not used: " . implode(', ', array_keys($expected_results)));
-        }
+        return array_map(
+            function ($s) use ($range, $method) {
+                return $range->$method($s);
+            },
+            $this->createScenarios($range)
+        );
     }
 }
