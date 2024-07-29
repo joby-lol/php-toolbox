@@ -152,6 +152,88 @@ abstract class AbstractRange
     }
 
     /**
+     * Perform a boolean XOR operation on this range and another, returning an
+     * array of all areas that are covered by either range but not both. If the
+     * ranges do not overlap, this array will contain both ranges separately.
+     * Separate objects must be returned in ascending order.
+     * @param static $other
+     * @return static[]
+     */
+    public function booleanXor(AbstractRange $other): array
+    {
+        // if the ranges are equal, return an empty array
+        if ($this->equals($other)) return [];
+        // if the ranges are adjacent return a single range
+        if ($this->adjacentLeftOf($other)) return [new static($this->start(), $other->end())];
+        if ($this->adjacentRightOf($other)) return [new static($other->start(), $this->end())];
+        // if the ranges do not overlap, return both ranges
+        if (!$this->intersects($other)) {
+            if ($this->extendsBefore($other)) {
+                return [new static($this->start(), $this->end()), new static($other->start(), $other->end())];
+            } else {
+                return [new static($other->start(), $other->end()), new static($this->start(), $this->end())];
+            }
+        }
+        // otherwise get the maximum bounds minus wherever these intersect
+        $range = new static(
+            $this->extendsBefore($other) ? $this->start() : $other->start(),
+            $this->extendsAfter($other) ? $this->end() : $other->end()
+        );
+        if ($intersect = $this->booleanAnd($other)) {
+            return $range->booleanNot($intersect);
+        } else {
+            return [$range];
+        }
+    }
+
+    /**
+     * Find all areas that are covered by both this range and another, sliced
+     * into up to three different ranges along the boundaries other boolean
+     * operations would break on. Areas will be returned in ascending order, and
+     * some information about the relationships between the ranges can be inferred
+     * from the number fo ranges returned here:
+     * - 1 range: the entered ranges are equal
+     * - 2 ranges: the entered ranges are adjacent, disjoint, or overlap with a shared boundary
+     * - 3 ranges: the entered ranges overlap with space on each end
+     * @param static $other
+     * @return static[]
+     */
+    public function booleanSlice(AbstractRange $other): array
+    {
+        // if the ranges are equal, return a single range
+        if ($this->equals($other)) return [new static($this->start(), $this->end())];
+        // if the ranges are adjacent, return two ranges
+        if ($this->adjacentLeftOf($other)) return [new static($this->start(), $this->end()), new static($other->start(), $other->end())];
+        if ($this->adjacentRightOf($other)) return [new static($other->start(), $other->end()), new static($this->start(), $this->end())];
+        // if the ranges do not overlap, return two ranges
+        if (!$this->intersects($other)) {
+            if ($this->extendsBefore($other)) {
+                return [new static($this->start(), $this->end()), new static($other->start(), $other->end())];
+            } else {
+                return [new static($other->start(), $other->end()), new static($this->start(), $this->end())];
+            }
+        }
+        // otherwise get the maximum bounds minus wherever these intersect
+        $overall_range = new static(
+            $this->extendsBefore($other) ? $this->start() : $other->start(),
+            $this->extendsAfter($other) ? $this->end() : $other->end()
+        );
+        $intersection = $this->booleanAnd($other);
+        $xor = $overall_range->booleanNot($intersection);
+        if (count($xor) == 2) {
+            return [$xor[0], $intersection, $xor[1]];
+        } elseif (count($xor) == 1) {
+            if ($intersection->extendsBefore($xor[0])) {
+                return [$intersection, $xor[0]];
+            } else {
+                return [$xor[0], $intersection];
+            }
+        }
+        // throw an exception if we get in an unexpected state
+        throw new RuntimeException(sprintf("Unexpected state (%s,%s) (%s,%s)", $this->start, $this->end, $other->start, $other->end));
+    }
+
+    /**
      * Perform a boolean NOT operation on this range and another, returning an
      * array of all areas that are covered by this range but not the other. If
      * the other range completely covers this range, an empty array will be

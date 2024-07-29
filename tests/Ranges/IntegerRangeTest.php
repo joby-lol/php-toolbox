@@ -955,6 +955,206 @@ class IntegerRangeTest extends TestCase
         );
     }
 
+    public function testBooleanXor()
+    {
+        // fully bounded
+        $this->assertEquals(
+            [
+                'same' => '',
+                'unbounded' => 'null,9;21,null',
+                'intersecting open end left' => '9,9;21,null',
+                'intersecting open end right' => '10,10;21,null',
+                'intersecting open end center' => '21,null',
+                'intersecting open start left' => 'null,9;20,20',
+                'intersecting open start right' => 'null,9;21,21',
+                'intersecting open start center' => 'null,9',
+                'disjoint open start' => 'null,8;10,20',
+                'disjoint open end' => '10,20;22,null',
+                'disjoint left' => '-2,8;10,20',
+                'disjoint right' => '10,20;22,32',
+                'adjacent open start' => 'null,20',
+                'adjacent open end' => '10,null',
+                'adjacent left' => '-1,20',
+                'adjacent right' => '10,31',
+                'contained' => '10,10;20,20',
+                'contained same start' => '20,20',
+                'contained same end' => '10,10',
+                'containing' => '9,9;21,21',
+                'containing unbounded start' => 'null,9;21,21',
+                'containing unbounded end' => '9,9;21,null',
+                'containing same start' => '21,21',
+                'containing same end' => '9,9',
+                'containing same start unbounded end' => '21,null',
+                'containing same end unbounded start' => 'null,9',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, 20),
+                'booleanXor',
+            )
+        );
+        // open start
+        $this->assertEquals(
+            [
+                'same' => '',
+                'unbounded' => '21,null',
+                'intersecting open start left' => '20,20',
+                'intersecting open start right' => '21,21',
+                'intersecting bounded start left' => 'null,8;20,20',
+                'intersecting bounded start right' => 'null,10;21,21',
+                'intersecting bounded start center' => 'null,9',
+                'intersecting open end same' => 'null,19;21,null',
+                'intersecting open end left' => 'null,18;21,null',
+                'intersecting bounded end same' => 'null,19;21,30',
+                'intersecting bounded end left' => 'null,18;21,29',
+                'adjacent open end' => 'null,null',
+                'adjacent bounded end' => 'null,30',
+                'disjoint open end' => 'null,20;22,null',
+                'disjoint bounded end' => 'null,20;22,32',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, 20),
+                'booleanXor',
+            )
+        );
+        // open end
+        $this->assertEquals(
+            [
+                'same' => '',
+                'unbounded' => 'null,9',
+                'intersecting open end left' => '9,9',
+                'intersecting open end right' => '10,10',
+                'intersecting bounded end left' => '9,9;20,null',
+                'intersecting bounded end right' => '10,10;22,null',
+                'intersecting bounded end center' => '21,null',
+                'intersecting open start same' => 'null,9;11,null',
+                'intersecting open start right' => 'null,9;12,null',
+                'intersecting bounded start same' => '0,9;11,null',
+                'intersecting bounded start right' => '1,9;12,null',
+                'adjacent open start' => 'null,null',
+                'adjacent bounded start' => '0,null',
+                'disjoint open start' => 'null,8;10,null',
+                'disjoint bounded start' => '-2,8;10,null',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, null),
+                'booleanXor',
+            )
+        );
+        // fully unbounded
+        $this->assertEquals(
+            [
+                'same' => '',
+                'open start' => '21,null',
+                'open end' => 'null,9',
+                'bounded' => 'null,9;21,null',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, null),
+                'booleanXor',
+            )
+        );
+    }
+
+    public function testBooleanSlice()
+    {
+        // fully bounded
+        $this->assertEquals(
+            [
+                'same' => '10,20',
+                'unbounded' => 'null,9;10,20;21,null',
+                'intersecting open end left' => '9,9;10,20;21,null',
+                'intersecting open end right' => '10,10;11,20;21,null',
+                'intersecting open end center' => '10,20;21,null',
+                'intersecting open start left' => 'null,9;10,19;20,20',
+                'intersecting open start right' => 'null,9;10,20;21,21',
+                'intersecting open start center' => 'null,9;10,20',
+                'disjoint open start' => 'null,8;10,20',
+                'disjoint open end' => '10,20;22,null',
+                'disjoint left' => '-2,8;10,20',
+                'disjoint right' => '10,20;22,32',
+                'adjacent open start' => 'null,9;10,20',
+                'adjacent open end' => '10,20;21,null',
+                'adjacent left' => '-1,9;10,20',
+                'adjacent right' => '10,20;21,31',
+                'contained' => '10,10;11,19;20,20',
+                'contained same start' => '10,19;20,20',
+                'contained same end' => '10,10;11,20',
+                'containing' => '9,9;10,20;21,21',
+                'containing unbounded start' => 'null,9;10,20;21,21',
+                'containing unbounded end' => '9,9;10,20;21,null',
+                'containing same start' => '10,20;21,21',
+                'containing same end' => '9,9;10,20',
+                'containing same start unbounded end' => '10,20;21,null',
+                'containing same end unbounded start' => 'null,9;10,20',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, 20),
+                'booleanSlice',
+            )
+        );
+        // open start
+        $this->assertEquals(
+            [
+                'same' => 'null,20',
+                'unbounded' => 'null,20;21,null',
+                'intersecting open start left' => 'null,19;20,20',
+                'intersecting open start right' => 'null,20;21,21',
+                'intersecting bounded start left' => 'null,8;9,19;20,20',
+                'intersecting bounded start right' => 'null,10;11,20;21,21',
+                'intersecting bounded start center' => 'null,9;10,20',
+                'intersecting open end same' => 'null,19;20,20;21,null',
+                'intersecting open end left' => 'null,18;19,20;21,null',
+                'intersecting bounded end same' => 'null,19;20,20;21,30',
+                'intersecting bounded end left' => 'null,18;19,20;21,29',
+                'adjacent open end' => 'null,20;21,null',
+                'adjacent bounded end' => 'null,20;21,30',
+                'disjoint open end' => 'null,20;22,null',
+                'disjoint bounded end' => 'null,20;22,32',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, 20),
+                'booleanSlice',
+            )
+        );
+        // open end
+        $this->assertEquals(
+            [
+                'same' => '10,null',
+                'unbounded' => 'null,9;10,null',
+                'intersecting open end left' => '9,9;10,null',
+                'intersecting open end right' => '10,10;11,null',
+                'intersecting bounded end left' => '9,9;10,19;20,null',
+                'intersecting bounded end right' => '10,10;11,21;22,null',
+                'intersecting bounded end center' => '10,20;21,null',
+                'intersecting open start same' => 'null,9;10,10;11,null',
+                'intersecting open start right' => 'null,9;10,11;12,null',
+                'intersecting bounded start same' => '0,9;10,10;11,null',
+                'intersecting bounded start right' => '1,9;10,11;12,null',
+                'adjacent open start' => 'null,9;10,null',
+                'adjacent bounded start' => '0,9;10,null',
+                'disjoint open start' => 'null,8;10,null',
+                'disjoint bounded start' => '-2,8;10,null',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(10, null),
+                'booleanSlice',
+            )
+        );
+        // fully unbounded
+        $this->assertEquals(
+            [
+                'same' => 'null,null',
+                'open start' => 'null,20;21,null',
+                'open end' => 'null,9;10,null',
+                'bounded' => 'null,9;10,20;21,null',
+            ],
+            $this->scenarioResults(
+                new IntegerRange(null, null),
+                'booleanSlice',
+            )
+        );
+    }
+
     protected function createScenarios(IntegerRange $range): array
     {
         if (is_null($range->start()) && is_null($range->end())) {
