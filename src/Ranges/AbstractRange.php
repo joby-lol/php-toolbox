@@ -68,13 +68,31 @@ abstract class AbstractRange
      * @param T|null $start
      * @param T|null $end
      */
-    public function __construct($start, $end)
+    final public function __construct($start, $end)
     {
         $this->setStart($start);
         $this->setEnd($end);
     }
 
     /**
+     * Perform a boolean AND operation on this range and another, returning the
+     * range that they both cover, returns null if they do not overlap.
+     * @param static $other
+     */
+    public function booleanAnd(AbstractRange $other): static|null
+    {
+        if ($this->contains($other)) return new static($other->start(), $other->end());
+        elseif ($other->contains($this)) return new static($this->start(), $this->end());
+        elseif ($this->intersects($other)) {
+            return new static(
+                $this->extendsBefore($other) ? $other->start() : $this->start(),
+                $this->extendsAfter($other) ? $other->end() : $this->end()
+            );
+        } else return null;
+    }
+
+    /**
+     * Check if this range has the same start and end as another range.
      * @param static $other
      */
     public function equals(AbstractRange $other): bool
@@ -83,6 +101,7 @@ abstract class AbstractRange
     }
 
     /**
+     * Check if any part of this range overlaps with another range.
      * @param static $other
      */
     public function intersects(AbstractRange $other): bool
@@ -93,6 +112,7 @@ abstract class AbstractRange
     }
 
     /**
+     * Check if this range completely contains another range.
      * @param static $other
      */
     public function contains(AbstractRange $other): bool
