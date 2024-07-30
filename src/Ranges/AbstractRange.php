@@ -131,22 +131,28 @@ abstract class AbstractRange
      * overlap this array will contain both ranges separately). Separate objects
      * must be returned in ascending order.
      * @param static $other
-     * @return static[]
+     * @return RangeCollection<static>
      */
-    public function booleanOr(AbstractRange $other): array
+    public function booleanOr(AbstractRange $other): RangeCollection
     {
         if ($this->intersects($other) || $this->adjacent($other)) {
-            return [
+            return RangeCollection::create(
                 new static(
                     $this->extendsBefore($other) ? $this->start() : $other->start(),
                     $this->extendsAfter($other) ? $this->end() : $other->end()
                 )
-            ];
+            );
         } else {
             if ($this->extendsBefore($other)) {
-                return [new static($this->start(), $this->end()), new static($other->start(), $other->end())];
+                return RangeCollection::create(
+                    new static($this->start(), $this->end()),
+                    new static($other->start(), $other->end())
+                );
             } else {
-                return [new static($other->start(), $other->end()), new static($this->start(), $this->end())];
+                return RangeCollection::create(
+                    new static($other->start(), $other->end()),
+                    new static($this->start(), $this->end())
+                );
             }
         }
     }
@@ -157,22 +163,17 @@ abstract class AbstractRange
      * ranges do not overlap, this array will contain both ranges separately.
      * Separate objects must be returned in ascending order.
      * @param static $other
-     * @return static[]
+     * @return RangeCollection<static>
      */
-    public function booleanXor(AbstractRange $other): array
+    public function booleanXor(AbstractRange $other): RangeCollection
     {
         // if the ranges are equal, return an empty array
-        if ($this->equals($other)) return [];
+        if ($this->equals($other)) return RangeCollection::createEmpty($other);
         // if the ranges are adjacent return a single range
-        if ($this->adjacentLeftOf($other)) return [new static($this->start(), $other->end())];
-        if ($this->adjacentRightOf($other)) return [new static($other->start(), $this->end())];
+        if ($this->adjacent($other)) return $this->booleanOr($other);
         // if the ranges do not overlap, return both ranges
         if (!$this->intersects($other)) {
-            if ($this->extendsBefore($other)) {
-                return [new static($this->start(), $this->end()), new static($other->start(), $other->end())];
-            } else {
-                return [new static($other->start(), $other->end()), new static($this->start(), $this->end())];
-            }
+            return RangeCollection::create(new static($this->start(), $this->end()), new static($other->start(), $other->end()));
         }
         // otherwise get the maximum bounds minus wherever these intersect
         $range = new static(
@@ -182,7 +183,7 @@ abstract class AbstractRange
         if ($intersect = $this->booleanAnd($other)) {
             return $range->booleanNot($intersect);
         } else {
-            return [$range];
+            return RangeCollection::create($range);
         }
     }
 
@@ -196,22 +197,18 @@ abstract class AbstractRange
      * - 2 ranges: the entered ranges are adjacent, disjoint, or overlap with a shared boundary
      * - 3 ranges: the entered ranges overlap with space on each end
      * @param static $other
-     * @return static[]
+     * @return RangeCollection<static>
      */
-    public function booleanSlice(AbstractRange $other): array
+    public function booleanSlice(AbstractRange $other): RangeCollection
     {
         // if the ranges are equal, return a single range
-        if ($this->equals($other)) return [new static($this->start(), $this->end())];
-        // if the ranges are adjacent, return two ranges
-        if ($this->adjacentLeftOf($other)) return [new static($this->start(), $this->end()), new static($other->start(), $other->end())];
-        if ($this->adjacentRightOf($other)) return [new static($other->start(), $other->end()), new static($this->start(), $this->end())];
+        if ($this->equals($other)) return RangeCollection::create(new static($this->start(), $this->end()));
         // if the ranges do not overlap, return two ranges
         if (!$this->intersects($other)) {
-            if ($this->extendsBefore($other)) {
-                return [new static($this->start(), $this->end()), new static($other->start(), $other->end())];
-            } else {
-                return [new static($other->start(), $other->end()), new static($this->start(), $this->end())];
-            }
+            return RangeCollection::create(
+                new static($this->start(), $this->end()),
+                new static($other->start(), $other->end())
+            );
         }
         // otherwise get the maximum bounds minus wherever these intersect
         $overall_range = new static(
@@ -219,15 +216,14 @@ abstract class AbstractRange
             $this->extendsAfter($other) ? $this->end() : $other->end()
         );
         $intersection = $this->booleanAnd($other);
+        assert($intersection !== null);
         $xor = $overall_range->booleanNot($intersection);
         if (count($xor) == 2) {
-            return [$xor[0], $intersection, $xor[1]];
+            assert(isset($xor[0], $xor[1]));
+            return RangeCollection::create($xor[0], $intersection, $xor[1]);
         } elseif (count($xor) == 1) {
-            if ($intersection->extendsBefore($xor[0])) {
-                return [$intersection, $xor[0]];
-            } else {
-                return [$xor[0], $intersection];
-            }
+            assert(isset($xor[0]));
+            return RangeCollection::create($intersection, $xor[0]);
         }
         // throw an exception if we get in an unexpected state
         throw new RuntimeException(sprintf("Unexpected state (%s,%s) (%s,%s)", $this->start, $this->end, $other->start, $other->end));
@@ -239,38 +235,38 @@ abstract class AbstractRange
      * the other range completely covers this range, an empty array will be
      * returned. Separate objects must be returned in ascending order.
      * @param static $other
-     * @return static[]
+     * @return RangeCollection<static>
      */
-    public function booleanNot(AbstractRange $other): array
+    public function booleanNot(AbstractRange $other): RangeCollection
     {
         // if this range is completely contained by the other, return an empty array
         if ($other->contains($this)) {
-            return [];
+            return RangeCollection::createEmpty($other);
         }
         // if the ranges do not overlap, return this range
         if (!$this->intersects($other)) {
-            return [new static($this->start(), $this->end())];
+            return RangeCollection::create(new static($this->start(), $this->end()));
         }
         // if this range completely contains the other, return the range from the start of this range to the start of the other
         if ($this->contains($other)) {
             if ($this->start == $other->start) {
-                return [new static(static::valueAfter($other->end), $this->end())];
+                return RangeCollection::create(new static(static::valueAfter($other->end), $this->end()));
             } elseif ($this->end == $other->end) {
-                return [new static($this->start(), static::valueBefore($other->start))];
+                return RangeCollection::create(new static($this->start(), static::valueBefore($other->start)));
             } else {
-                return [
+                return RangeCollection::create(
                     new static($this->start(), static::valueBefore($other->start)),
                     new static(static::valueAfter($other->end), $this->end())
-                ];
+                );
             }
         }
         // if this range extends before the other, return the range from the start of this range to the start of the other
         if ($this->extendsBefore($other)) {
-            return [new static($this->start(), static::valueBefore($other->start))];
+            return RangeCollection::create(new static($this->start(), static::valueBefore($other->start)));
         }
         // if this range extends after the other, return the range from the end of the other to the end of this range
         if ($this->extendsAfter($other)) {
-            return [new static(static::valueAfter($other->end), $this->end())];
+            return RangeCollection::create(new static(static::valueAfter($other->end), $this->end()));
         }
         // throw an exception if we get in an unexpected state
         throw new RuntimeException(sprintf("Unexpected state (%s,%s) (%s,%s)", $this->start, $this->end, $other->start, $other->end));
@@ -397,5 +393,15 @@ abstract class AbstractRange
     public function end(): mixed
     {
         return $this->end_value;
+    }
+
+    public function startAsNumber(): int|float
+    {
+        return $this->start;
+    }
+
+    public function endAsNumber(): int|float
+    {
+        return $this->end;
     }
 }

@@ -25,6 +25,8 @@
 
 namespace Joby\Toolbox\Ranges;
 
+use Stringable;
+
 /**
  * The simplest possible implementation of AbstractRange, which uses integers as
  * its values as well as it's internal hashes. All it does to convert values is
@@ -36,7 +38,7 @@ namespace Joby\Toolbox\Ranges;
  * 
  * @extends AbstractRange<int>
  */
-class IntegerRange extends AbstractRange
+class IntegerRange extends AbstractRange implements Stringable
 {
     protected static function valueToInteger(mixed $value): int
     {
@@ -51,5 +53,14 @@ class IntegerRange extends AbstractRange
     protected static function prepareValue(mixed $value): mixed
     {
         return (int)$value;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf(
+            '[%s...%s]',
+            $this->start === -INF ? '' : $this->start,
+            $this->end === INF ? '' : $this->end
+        );
     }
 }
