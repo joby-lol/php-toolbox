@@ -38,7 +38,7 @@ use Stringable;
  * 
  * @extends AbstractRange<int>
  */
-class IntegerRange extends AbstractRange implements Stringable
+class IntegerRange extends AbstractRange
 {
     protected static function valueToInteger(mixed $value): int
     {
@@ -53,14 +53,5 @@ class IntegerRange extends AbstractRange implements Stringable
     protected static function prepareValue(mixed $value): mixed
     {
         return (int)$value;
-    }
-
-    public function __toString(): string
-    {
-        return sprintf(
-            '[%s...%s]',
-            $this->start === -INF ? '' : $this->start,
-            $this->end === INF ? '' : $this->end
-        );
     }
 }

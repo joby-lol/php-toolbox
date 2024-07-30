@@ -26,6 +26,7 @@
 namespace Joby\Toolbox\Ranges;
 
 use RuntimeException;
+use Stringable;
 
 /**
  * Class to represent a range of values, which consists of a start and an end
@@ -43,7 +44,7 @@ use RuntimeException;
  *
  * @template T of mixed
  */
-abstract class AbstractRange
+abstract class AbstractRange implements Stringable
 {
     protected int|float $start;
     protected int|float $end;
@@ -403,5 +404,14 @@ abstract class AbstractRange
     public function endAsNumber(): int|float
     {
         return $this->end;
+    }
+
+    public function __toString(): string
+    {
+        return sprintf(
+            '[%s...%s]',
+            $this->start === -INF ? '' : (is_string($this->start_value) ? $this->start_value : $this->start),
+            $this->end === INF ? '' : (is_string($this->end_value) ? $this->end_value : $this->end)
+        );
     }
 }
