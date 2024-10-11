@@ -37,7 +37,7 @@ namespace Joby\Toolbox\Sorting;
  */
 class Sorter
 {
-    /** @var array<callable(mixed, mixed): int> */
+    /** @var array<callable> */
     protected array $comparisons = [];
 
     /**
@@ -45,7 +45,7 @@ class Sorter
      * The sorters will be called in order, and the array will be sorted based
      * on the first one to return a non-zero value.
      * 
-     * @param callable(mixed, mixed): int ...$comparisons
+     * @param callable ...$comparisons
      */
     public function __construct(callable ...$comparisons)
     {
@@ -56,7 +56,7 @@ class Sorter
      * Add one or more sorting callbacks to this sorter. The new callbacks will
      * be appended to the end of the existing list of sorters.
      * 
-     * @param callable(mixed, mixed): int ...$comparisons
+     * @param callable ...$comparisons
      */
     public function addComparison(callable ...$comparisons): static
     {

@@ -1,5 +1,7 @@
 # Joby's PHP Toolbox
 
+[![CI](https://github.com/joby-lol/php-toolbox/actions/workflows/ci.yml/badge.svg)](https://github.com/joby-lol/php-toolbox/actions/workflows/ci.yml)
+
 A lightweight collection of useful general purpose PHP tools with no dependencies. Committed to always at least having minimal dependencies.
 
 ## Development status
