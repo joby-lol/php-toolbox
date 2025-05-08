@@ -25,10 +25,56 @@
 
 namespace Joby\Toolbox\Arrays;
 
-use Exception;
+use InvalidArgumentException;
 
 class ArrayFunctions
 {
+    /**
+     * Shift up to n elements from the start of an array, and return their
+     * values in a new array. This is equivalent to calling array_shift n times
+     * on the original array and putting the resulting values in a new array.
+     * Only values are preserved, and keys are discarded.
+     *
+     * If the array has fewer than n elements, all of the elements will be
+     * shifted and the original array will be empty.
+     *
+     * @template T
+     * @param array<T> &$array 
+     * @param int<1,max> $n 
+     * @return array<T>
+     */
+    public static function shift_n(array &$array, int $n): array
+    {
+        $values = [];
+        while ($array && count($values) < $n) {
+            $values[] = array_shift($array);
+        }
+        return $values;
+    }
+
+    /**
+     * Shift up to n elements from the end of an array, and return their values
+     * in a new array. This is equivalent to calling array_pop n times on the
+     * original array and putting the resulting values in a new array. Only
+     * values are preserved, and keys are discarded.
+     *
+     * If the array has fewer than n elements, all of the elements will be
+     * shifted and the original array will be empty.
+     *
+     * @template T
+     * @param array<T> &$array 
+     * @param int<1,max> $n 
+     * @return array<T>
+     */
+    public static function pop_n(array &$array, int $n): array
+    {
+        $values = [];
+        while ($array && count($values) < $n) {
+            $values[] = array_pop($array);
+        }
+        return $values;
+    }
+
     /**
      * Mostly this behaves like the built-in min function, but it has an
      * optional parameter to control whether null values are considered high or
@@ -47,7 +93,7 @@ class ArrayFunctions
             if (!$null_high && is_null($value)) return null;
             $values[] = $value;
         }
-        if (empty($values)) throw new Exception("Minimum is undefined if there are no values");
+        if (empty($values)) throw new InvalidArgumentException("Minimum is undefined if there are no values");
         $values = array_unique($values);
         if ($null_high) {
             usort(
@@ -91,7 +137,7 @@ class ArrayFunctions
             if ($null_high && is_null($value)) return null;
             $values[] = $value;
         }
-        if (empty($values)) throw new Exception("Minimum is undefined if there are no values");
+        if (empty($values)) throw new InvalidArgumentException("Minimum is undefined if there are no values");
         $values = array_unique($values);
         if ($null_high) {
             usort(

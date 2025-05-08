@@ -29,6 +29,29 @@ use PHPUnit\Framework\TestCase;
 
 class ArrayFunctionsTest extends TestCase
 {
+    public function testShift_n()
+    {
+        // Test shifting multiple elements all the way until it's empty
+        $array = [1, 2, 3, 4, 5];
+        $this->assertEquals([1, 2], ArrayFunctions::shift_n($array, 2));
+        $this->assertEquals([3, 4, 5], $array);
+        $this->assertEquals([3, 4], ArrayFunctions::shift_n($array, 2));
+        $this->assertEquals([5], $array);
+        $this->assertEquals([5], ArrayFunctions::shift_n($array, 2));
+        $this->assertEquals([], $array);
+    }
+
+    public function testPop_n()
+    {
+        // Test popping multiple elements all the way until it's empty
+        $array = [1, 2, 3, 4, 5];
+        $this->assertEquals([5, 4], ArrayFunctions::pop_n($array, 2));
+        $this->assertEquals([1, 2, 3], $array);
+        $this->assertEquals([3, 2], ArrayFunctions::pop_n($array, 2));
+        $this->assertEquals([1], $array);
+        $this->assertEquals([1], ArrayFunctions::pop_n($array, 2));
+        $this->assertEquals([], $array);
+    }
 
     public function testMin()
     {
