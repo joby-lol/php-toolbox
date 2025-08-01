@@ -116,9 +116,12 @@ abstract class AbstractRange implements Stringable
      */
     public function booleanAnd(AbstractRange $other): static|null
     {
+        // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
         if ($this->contains($other)) return new static($other->start(), $other->end());
+        // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
         elseif ($other->contains($this)) return new static($this->start(), $this->end());
         elseif ($this->intersects($other)) {
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return new static(
                 $this->extendsBefore($other) ? $other->start() : $this->start(),
                 $this->extendsAfter($other) ? $other->end() : $this->end()
@@ -137,6 +140,7 @@ abstract class AbstractRange implements Stringable
     public function booleanOr(AbstractRange $other): RangeCollection
     {
         if ($this->intersects($other) || $this->adjacent($other)) {
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return RangeCollection::create(
                 new static(
                     $this->extendsBefore($other) ? $this->start() : $other->start(),
@@ -145,11 +149,13 @@ abstract class AbstractRange implements Stringable
             );
         } else {
             if ($this->extendsBefore($other)) {
+                // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
                 return RangeCollection::create(
                     new static($this->start(), $this->end()),
                     new static($other->start(), $other->end())
                 );
             } else {
+                // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
                 return RangeCollection::create(
                     new static($other->start(), $other->end()),
                     new static($this->start(), $this->end())
@@ -174,6 +180,7 @@ abstract class AbstractRange implements Stringable
         if ($this->adjacent($other)) return $this->booleanOr($other);
         // if the ranges do not overlap, return both ranges
         if (!$this->intersects($other)) {
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return RangeCollection::create(new static($this->start(), $this->end()), new static($other->start(), $other->end()));
         }
         // otherwise get the maximum bounds minus wherever these intersect
@@ -184,6 +191,7 @@ abstract class AbstractRange implements Stringable
         if ($intersect = $this->booleanAnd($other)) {
             return $range->booleanNot($intersect);
         } else {
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return RangeCollection::create($range);
         }
     }
@@ -203,9 +211,11 @@ abstract class AbstractRange implements Stringable
     public function booleanSlice(AbstractRange $other): RangeCollection
     {
         // if the ranges are equal, return a single range
+        // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
         if ($this->equals($other)) return RangeCollection::create(new static($this->start(), $this->end()));
         // if the ranges do not overlap, return two ranges
         if (!$this->intersects($other)) {
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return RangeCollection::create(
                 new static($this->start(), $this->end()),
                 new static($other->start(), $other->end())
@@ -246,15 +256,19 @@ abstract class AbstractRange implements Stringable
         }
         // if the ranges do not overlap, return this range
         if (!$this->intersects($other)) {
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return RangeCollection::create(new static($this->start(), $this->end()));
         }
         // if this range completely contains the other, return the range from the start of this range to the start of the other
         if ($this->contains($other)) {
             if ($this->start == $other->start) {
+                // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
                 return RangeCollection::create(new static(static::valueAfter($other->end), $this->end()));
             } elseif ($this->end == $other->end) {
+                // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
                 return RangeCollection::create(new static($this->start(), static::valueBefore($other->start)));
             } else {
+                // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
                 return RangeCollection::create(
                     new static($this->start(), static::valueBefore($other->start)),
                     new static(static::valueAfter($other->end), $this->end())
@@ -263,10 +277,12 @@ abstract class AbstractRange implements Stringable
         }
         // if this range extends before the other, return the range from the start of this range to the start of the other
         if ($this->extendsBefore($other)) {
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return RangeCollection::create(new static($this->start(), static::valueBefore($other->start)));
         }
         // if this range extends after the other, return the range from the end of the other to the end of this range
         if ($this->extendsAfter($other)) {
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return RangeCollection::create(new static(static::valueAfter($other->end), $this->end()));
         }
         // throw an exception if we get in an unexpected state
