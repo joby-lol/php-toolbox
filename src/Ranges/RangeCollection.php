@@ -3,23 +3,23 @@
 /**
  * Joby's PHP Toolbox: https://go.joby.lol/phptoolbox
  * MIT License: Copyright (c) 2024 Joby Elliott
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
 
@@ -39,9 +39,9 @@ use Stringable;
  * provides a number of methods for manipulating the colleciton, such as merging
  * it with another collection, mapping, filtering, boolean operations with other
  * collections or ranges, etc.
- * 
+ *
  * It also allows counting, array access, and iteration in foreach loops.
- * 
+ *
  * @template T of AbstractRange
  * @implements ArrayAccess<int,T>
  * @implements IteratorAggregate<int,T>
@@ -54,36 +54,10 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     protected $ranges = [];
 
     /**
-     * Create a new collection from any number of ranges. Must have at least one
-     * argument, which is used to determine the type of range to store.
-     * 
-     * @template RangeType of AbstractRange
-     * @param RangeType $range 
-     * @param RangeType ...$ranges 
-     * @return RangeCollection<RangeType>
-     */
-    public static function create(AbstractRange $range, AbstractRange ...$ranges): RangeCollection
-    {
-        return new RangeCollection($range::class, $range, ...$ranges);
-    }
-
-    /**
-     * Create an empty collection of a specific range type.
-     * 
-     * @template RangeType of AbstractRange
-     * @param RangeType|class-string<RangeType> $class 
-     * @return RangeCollection<RangeType>
-     */
-    public static function createEmpty(AbstractRange|string $class): RangeCollection
-    {
-        if (is_object($class)) return new RangeCollection($class::class);
-        else return new RangeCollection($class);
-    }
-
-    /**
      * @param class-string<T> $class
-     * @param T ...$ranges 
-     * @return void 
+     * @param T               ...$ranges
+     *
+     * @return void
      */
     protected function __construct(string $class, AbstractRange ...$ranges)
     {
@@ -98,8 +72,39 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     }
 
     /**
+     * Create a new collection from any number of ranges. Must have at least one
+     * argument, which is used to determine the type of range to store.
+     *
+     * @template RangeType of AbstractRange
+     * @param RangeType $range
+     * @param RangeType ...$ranges
+     *
+     * @return RangeCollection<RangeType>
+     */
+    public static function create(AbstractRange $range, AbstractRange ...$ranges): RangeCollection
+    {
+        return new RangeCollection($range::class, $range, ...$ranges);
+    }
+
+    /**
+     * Create an empty collection of a specific range type.
+     *
+     * @template RangeType of AbstractRange
+     * @param RangeType|class-string<RangeType> $class
+     *
+     * @return RangeCollection<RangeType>
+     */
+    public static function createEmpty(AbstractRange|string $class): RangeCollection
+    {
+        if (is_object($class)) return new RangeCollection($class::class);
+        else return new RangeCollection($class);
+    }
+
+    /**
      * Subtract the given range from all ranges in this collection.
+     *
      * @param T $other
+     *
      * @return RangeCollection<T>
      */
     public function booleanNot(AbstractRange $other): RangeCollection
@@ -112,7 +117,9 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     /**
      * Return only the ranges that intersect with the given range from any
      * range in this colelction.
+     *
      * @param T $other
+     *
      * @return RangeCollection<T>
      */
     public function booleanAnd(AbstractRange $other): RangeCollection
@@ -126,7 +133,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
      * Transform this collection into the set of ranges that fully contain all
      * ranges in this collection. This is done by merging overlapping or adjacent
      * ranges until no more merges are possible.
-     * 
+     *
      * @return RangeCollection<T>
      */
     public function mergeRanges(): RangeCollection
@@ -139,7 +146,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     /**
      * Merge all ranges that intersect with each other into single continuous
      * ranges instead of a buch of separate chunks.
-     * 
+     *
      * @return RangeCollection<T>
      */
     public function mergeIntersectingRanges(): RangeCollection
@@ -161,38 +168,11 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     }
 
     /**
-     * Merge all ranges that are adjacent to each other into single continuous
-     * ranges instead of a buch of separate chunks. Note that this does not
-     * merge ranges that overlap, and strictly merges only ranges that are
-     * adjacent. If ranges are adjacent to multiple other ranges only one will
-     * be merged, and the others will remain separate. This method is protected
-     * because its behavior is complex in the case of multiple adjacent ranges
-     * and most users are probably looking for the behavior of mergeRanges()
-     * or mergeIntersectingRanges() anyway.
-     * @return RangeCollection<T> 
-     */
-    protected function mergeAdjacentRanges(): RangeCollection
-    {
-        /** @var array<int,T> */
-        $merged = [];
-        foreach ($this->ranges as $range) {
-            $found = false;
-            foreach ($merged as $k => $m) {
-                if ($range->adjacent($m)) {
-                    $found = true;
-                    $merged[$k] = $m->booleanOr($range)[0];
-                    break;
-                }
-            }
-            if (!$found) $merged[] = $range;
-        }
-        return new RangeCollection($this->class, ...$merged);
-    }
-
-    /**
      * Filter this collection to only include ranges that return true when
      * passed to the provided callback.
-     * @param callable(T):bool $callback 
+     *
+     * @param callable(T):bool $callback
+     *
      * @return RangeCollection<T>
      */
     public function filter(callable $callback): RangeCollection
@@ -201,8 +181,11 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     }
 
     /**
-     * Inspect and modify each range in the collection using the provided callback. If the callback returns a collection it will be merged. If the callback returns null, the range will be removed.
+     * Inspect and modify each range in the collection using the provided callback. If the callback returns a
+     * collection it will be merged. If the callback returns null, the range will be removed.
+     *
      * @param callable(T):(T|RangeCollection<T>|null) $callback
+     *
      * @return RangeCollection<T>
      */
     public function map(callable $callback): RangeCollection
@@ -234,6 +217,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
 
     /**
      * @param T ...$ranges
+     *
      * @return RangeCollection<T>
      */
     public function add(AbstractRange ...$ranges): RangeCollection
@@ -242,14 +226,44 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
         return new RangeCollection($this->class, ...$ranges);
     }
 
-    protected function sort(): void
+    /**
+     * Return the highest value in the collection, if the collection is not empty.
+     *
+     * @return T|null
+     */
+    public function end(): mixed
     {
-        static $sorter;
-        $sorter = $sorter ?? $sorter = new Sorter(
-            fn (AbstractRange $a, AbstractRange $b): int => $a->startAsNumber() <=> $b->startAsNumber(),
-            fn (AbstractRange $a, AbstractRange $b): int => $a->endAsNumber() <=> $b->endAsNumber(),
-        );
-        $sorter->sort($this->ranges);
+        return $this->ranges[count($this->ranges) - 1]?->end();
+    }
+
+    /**
+     * Return the lowest value in the collection, if the collection is not empty.
+     *
+     * @return T|null
+     */
+    public function start(): mixed
+    {
+        return $this->ranges[0]?->start();
+    }
+
+    /**
+     * Return the highest value in the collection, if the collection is not empty, as a number.
+     *
+     * @return int|null
+     */
+    public function endAsNumber(): mixed
+    {
+        return $this->ranges[count($this->ranges) - 1]?->endAsNumber();
+    }
+
+    /**
+     * Return the lowest value in the collection, if the collection is not empty, as a number.
+     *
+     * @return int|null
+     */
+    public function startAsNumber(): mixed
+    {
+        return $this->ranges[0]?->startAsNumber();
     }
 
     public function count(): int
@@ -259,6 +273,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
 
     /**
      * @param int $offset
+     *
      * @return bool
      */
     public function offsetExists($offset): bool
@@ -268,6 +283,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
 
     /**
      * @param int $offset
+     *
      * @return T|null
      */
     public function offsetGet($offset): ?AbstractRange
@@ -277,7 +293,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
 
     /**
      * @param int|null $offset
-     * @param T $value
+     * @param T        $value
      */
     public function offsetSet($offset, $value): void
     {
@@ -310,5 +326,45 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     public function __toString(): string
     {
         return implode(', ', $this->ranges);
+    }
+
+    /**
+     * Merge all ranges that are adjacent to each other into single continuous
+     * ranges instead of a buch of separate chunks. Note that this does not
+     * merge ranges that overlap, and strictly merges only ranges that are
+     * adjacent. If ranges are adjacent to multiple other ranges only one will
+     * be merged, and the others will remain separate. This method is protected
+     * because its behavior is complex in the case of multiple adjacent ranges
+     * and most users are probably looking for the behavior of mergeRanges()
+     * or mergeIntersectingRanges() anyway.
+     *
+     * @return RangeCollection<T>
+     */
+    protected function mergeAdjacentRanges(): RangeCollection
+    {
+        /** @var array<int,T> */
+        $merged = [];
+        foreach ($this->ranges as $range) {
+            $found = false;
+            foreach ($merged as $k => $m) {
+                if ($range->adjacent($m)) {
+                    $found = true;
+                    $merged[$k] = $m->booleanOr($range)[0];
+                    break;
+                }
+            }
+            if (!$found) $merged[] = $range;
+        }
+        return new RangeCollection($this->class, ...$merged);
+    }
+
+    protected function sort(): void
+    {
+        static $sorter;
+        $sorter = $sorter ?? $sorter = new Sorter(
+            fn(AbstractRange $a, AbstractRange $b): int => $a->startAsNumber() <=> $b->startAsNumber(),
+            fn(AbstractRange $a, AbstractRange $b): int => $a->endAsNumber() <=> $b->endAsNumber(),
+        );
+        $sorter->sort($this->ranges);
     }
 }
