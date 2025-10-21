@@ -233,7 +233,8 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
      */
     public function end(): mixed
     {
-        return $this->ranges[count($this->ranges) - 1]?->end();
+        if (!isset($this->ranges[count($this->ranges) - 1])) return null;
+        return $this->ranges[count($this->ranges) - 1]->end();
     }
 
     /**
@@ -243,7 +244,8 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
      */
     public function start(): mixed
     {
-        return $this->ranges[0]?->start();
+        if (!isset($this->ranges[0])) return null;
+        return $this->ranges[0]->start();
     }
 
     /**
@@ -253,7 +255,9 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
      */
     public function endAsNumber(): mixed
     {
-        return $this->ranges[count($this->ranges) - 1]?->endAsNumber();
+        $i = count($this->ranges) - 1;
+        if (!isset($this->ranges[$i])) return null;
+        return $this->ranges[$i]->endAsNumber();
     }
 
     /**
@@ -263,7 +267,8 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
      */
     public function startAsNumber(): mixed
     {
-        return $this->ranges[0]?->startAsNumber();
+        if (!isset($this->ranges[0])) return null;
+        return $this->ranges[0]->startAsNumber();
     }
 
     public function count(): int

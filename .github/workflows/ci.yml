@@ -16,5 +16,6 @@ jobs:
       - uses: php-actions/phpunit@v4
         with:
           version: 10
-          test_suffix: "Test.php"
           php_version: ${{ matrix.php-versions }}
+          bootstrap: vendor/autoload.php
+
