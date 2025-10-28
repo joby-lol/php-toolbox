@@ -48,9 +48,9 @@ use Stringable;
  */
 class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stringable
 {
-    /** @var class-string<T> */
+    /** @var class-string<T> $class */
     protected string $class;
-    /** @var array<int,T> */
+    /** @var array<int,T> $ranges */
     protected $ranges = [];
 
     /**
@@ -151,14 +151,15 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
      */
     public function mergeIntersectingRanges(): RangeCollection
     {
-        /** @var array<int,T> */
         $merged = [];
         foreach ($this->ranges as $range) {
             $found = false;
             foreach ($merged as $k => $m) {
                 if ($range->intersects($m)) {
                     $found = true;
-                    $merged[$k] = $m->booleanOr($range)[0];
+                    $v = $m->booleanOr($range)[0];
+                    assert($v instanceof $this->class);
+                    $merged[$k] = $v;
                     break;
                 }
             }
@@ -234,6 +235,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     public function end(): mixed
     {
         if (!isset($this->ranges[count($this->ranges) - 1])) return null;
+        // @phpstan-ignore-next-line this definitely returns the right type
         return $this->ranges[count($this->ranges) - 1]->end();
     }
 
@@ -245,6 +247,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     public function start(): mixed
     {
         if (!isset($this->ranges[0])) return null;
+        // @phpstan-ignore-next-line this definitely returns the right type
         return $this->ranges[0]->start();
     }
 
@@ -257,6 +260,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     {
         $i = count($this->ranges) - 1;
         if (!isset($this->ranges[$i])) return null;
+        // @phpstan-ignore-next-line this definitely returns the right type
         return $this->ranges[$i]->endAsNumber();
     }
 
@@ -268,6 +272,7 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
     public function startAsNumber(): mixed
     {
         if (!isset($this->ranges[0])) return null;
+        // @phpstan-ignore-next-line this definitely returns the right type
         return $this->ranges[0]->startAsNumber();
     }
 
@@ -347,14 +352,17 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
      */
     protected function mergeAdjacentRanges(): RangeCollection
     {
-        /** @var array<int,T> */
+        /** @var array<int,T> $merged */
         $merged = [];
         foreach ($this->ranges as $range) {
             $found = false;
+            /** @var T $m */
             foreach ($merged as $k => $m) {
                 if ($range->adjacent($m)) {
                     $found = true;
-                    $merged[$k] = $m->booleanOr($range)[0];
+                    $v = $m->booleanOr($range)[0];
+                    assert($v instanceof $this->class);
+                    $merged[$k] = $v;
                     break;
                 }
             }
@@ -365,11 +373,15 @@ class RangeCollection implements Countable, ArrayAccess, IteratorAggregate, Stri
 
     protected function sort(): void
     {
-        static $sorter;
-        $sorter = $sorter ?? $sorter = new Sorter(
-            fn(AbstractRange $a, AbstractRange $b): int => $a->startAsNumber() <=> $b->startAsNumber(),
-            fn(AbstractRange $a, AbstractRange $b): int => $a->endAsNumber() <=> $b->endAsNumber(),
-        );
+        /** @var Sorter|null $sorter */
+        static $sorter = null;
+        if (is_null($sorter)) {
+            $sorter = new Sorter(
+                fn(AbstractRange $a, AbstractRange $b): int => $a->startAsNumber() <=> $b->startAsNumber(),
+                fn(AbstractRange $a, AbstractRange $b): int => $a->endAsNumber() <=> $b->endAsNumber(),
+            );
+        }
+        // @phpstan-ignore-next-line sorter doesn't actually change the type of this array
         $sorter->sort($this->ranges);
     }
 }

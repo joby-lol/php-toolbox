@@ -37,7 +37,7 @@ namespace Joby\Toolbox\Sorting;
  */
 class Sorter
 {
-    /** @var array<callable> */
+    /** @var array<callable(mixed $a, mixed $b): int> $comparisons */
     protected array $comparisons = [];
 
     /**
@@ -70,7 +70,9 @@ class Sorter
      * Sort an array using the current list of callbacks. This method takes its
      * array by reference and sorts it in place to reduce memory use.
      *
-     * @param array<mixed> &$data The array to sort, passed by reference.
+     * @template TItem of mixed
+     * @param array<TKey,TItem> &$data The array to sort, passed by reference.
+     * @phpstan-assert array<int,TItem> $data
      */
     public function sort(array &$data): static
     {
@@ -85,7 +87,7 @@ class Sorter
     {
         // sort using explicit comparisons
         foreach ($this->comparisons as $comparison) {
-            $result = intval($comparison($a, $b));
+            $result = $comparison($a, $b);
             if ($result !== 0) {
                 return $result;
             }
