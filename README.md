@@ -2,6 +2,20 @@
 
 A lightweight collection of useful general purpose PHP tools with no dependencies. Committed to always at least having minimal dependencies.
 
+## URL-safe Base64
+
+`Encoding` has functions for URL-safe base64 encoding. Simple implementation that replaces `+` and `/` with `-` and `_`, respectively. Also strips right padding `=` signs as they are not necessary for decoding.
+
+```php
+use Joby\Toolbox\Strings\Encoding;
+
+// encode a string or binary data
+$encoded = Encoding::base64url_encode($your_data);
+
+// decode it
+$decoded = Encoding::base64_url_decode($encoded);
+```
+
 ## Array Tools
 
 The `ArrayFunctions` class provides enhanced array manipulation capabilities:

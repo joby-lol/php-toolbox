@@ -29,6 +29,7 @@ use InvalidArgumentException;
 
 class ArrayFunctions
 {
+
     /**
      * Shift up to n elements from the start of an array, and return their
      * values in a new array. This is equivalent to calling array_shift n times
@@ -90,28 +91,37 @@ class ArrayFunctions
         $values = [];
         foreach ($data as $value) {
             // if nulls are low, they are the lowest value possible so short-circuit if we find one
-            if (!$null_high && is_null($value)) return null;
+            if (!$null_high && is_null($value))
+                return null;
             $values[] = $value;
         }
-        if (empty($values)) throw new InvalidArgumentException("Minimum is undefined if there are no values");
-        $values = array_unique($values);
+        if (empty($values))
+            throw new InvalidArgumentException("Minimum is undefined if there are no values");
+        $values = array_unique($values, SORT_REGULAR);
         if ($null_high) {
             usort(
                 $values,
                 function ($a, $b) {
-                    if ($a === $b) return 0;
-                    if (is_null($a)) return 1;
-                    if (is_null($b)) return -1;
+                    if ($a === $b)
+                        return 0;
+                    if (is_null($a))
+                        return 1;
+                    if (is_null($b))
+                        return -1;
                     return $a <=> $b;
                 }
             );
-        } else {
+        }
+        else {
             usort(
                 $values,
                 function ($a, $b) {
-                    if ($a === $b) return 0;
-                    if (is_null($a)) return -1;
-                    if (is_null($b)) return 1;
+                    if ($a === $b)
+                        return 0;
+                    if (is_null($a))
+                        return -1;
+                    if (is_null($b))
+                        return 1;
                     return $a <=> $b;
                 }
             );
@@ -134,32 +144,42 @@ class ArrayFunctions
         $values = [];
         foreach ($data as $value) {
             // if nulls are high, they are the highest value possible so short-circuit if we find one
-            if ($null_high && is_null($value)) return null;
+            if ($null_high && is_null($value))
+                return null;
             $values[] = $value;
         }
-        if (empty($values)) throw new InvalidArgumentException("Minimum is undefined if there are no values");
-        $values = array_unique($values);
+        if (empty($values))
+            throw new InvalidArgumentException("Minimum is undefined if there are no values");
+        $values = array_unique($values, SORT_REGULAR);
         if ($null_high) {
             usort(
                 $values,
                 function ($a, $b) {
-                    if ($a === $b) return 0;
-                    if (is_null($a)) return 1;
-                    if (is_null($b)) return -1;
+                    if ($a === $b)
+                        return 0;
+                    if (is_null($a))
+                        return 1;
+                    if (is_null($b))
+                        return -1;
                     return $a <=> $b;
                 }
             );
-        } else {
+        }
+        else {
             usort(
                 $values,
                 function ($a, $b) {
-                    if ($a === $b) return 0;
-                    if (is_null($a)) return -1;
-                    if (is_null($b)) return 1;
+                    if ($a === $b)
+                        return 0;
+                    if (is_null($a))
+                        return -1;
+                    if (is_null($b))
+                        return 1;
                     return $a <=> $b;
                 }
             );
         }
         return end($values);
     }
+
 }

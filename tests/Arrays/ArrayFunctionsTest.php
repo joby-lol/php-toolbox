@@ -29,6 +29,7 @@ use PHPUnit\Framework\TestCase;
 
 class ArrayFunctionsTest extends TestCase
 {
+
     public function testShift_n()
     {
         // Test shifting multiple elements all the way until it's empty
@@ -60,7 +61,7 @@ class ArrayFunctionsTest extends TestCase
         $array = [5, 4, 3, 2, 1];
         $this->assertEquals(1, ArrayFunctions::min($array));
         // by default nulls are low, and should be returned as if they are the lowest value
-        $array = [1, 2, 3, 4, 5, null];
+        $array = [1, 2, 3, null, 4, 5];
         $this->assertEquals(null, ArrayFunctions::min($array));
         // if nulls are high, they should be skipped because they aren't the min
         $this->assertEquals(1, ArrayFunctions::min($array, true));
@@ -82,7 +83,7 @@ class ArrayFunctionsTest extends TestCase
         $array = [5, 4, 3, 2, 1];
         $this->assertEquals(5, ArrayFunctions::max($array));
         // by default nulls are low, and should be treated as if they are the lowest value
-        $array = [1, 2, 3, 4, 5, null];
+        $array = [1, 2, 3, null, 4, 5];
         $this->assertEquals(5, ArrayFunctions::max($array));
         // if nulls are high, they should be returned as if they are the highest value
         $this->assertEquals(null, ArrayFunctions::max($array, true));
@@ -96,4 +97,5 @@ class ArrayFunctionsTest extends TestCase
         $array = ['e', 'd', 'c', 'b', 'a'];
         $this->assertEquals('e', ArrayFunctions::max($array));
     }
+
 }
