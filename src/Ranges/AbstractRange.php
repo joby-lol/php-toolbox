@@ -51,9 +51,9 @@ abstract class AbstractRange implements Stringable
 
     protected int|float $end;
 
-    protected mixed     $start_value;
+    protected mixed $start_value;
 
-    protected mixed     $end_value;
+    protected mixed $end_value;
 
     /**
      * This must be essentially a hash function, which converts a given value
@@ -225,8 +225,8 @@ abstract class AbstractRange implements Stringable
     public function booleanSlice(AbstractRange $other): RangeCollection
     {
         // if the ranges are equal, return a single range
-        // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
         if ($this->equals($other))
+            // @phpstan-ignore-next-line https://github.com/phpstan/phpstan/issues/6640
             return RangeCollection::create(new static($this->start(), $this->end()));
         // if the ranges do not overlap, return two ranges
         if (!$this->intersects($other)) {
